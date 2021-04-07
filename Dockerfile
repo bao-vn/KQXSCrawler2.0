@@ -1,7 +1,7 @@
 #FROM openjdk:8-jdk-alpine
-#ARG JAR_FILE=target/gradle-getting-started-1.0.jar
-#COPY ${JAR_FILE} gradle-getting-started-1.0.jar
-#ENTRYPOINT ["java","-jar","/gradle-getting-started-1.0.jar
+#ARG JAR_FILE=target/KQXSCrawler.jar
+#COPY ${JAR_FILE} KQXSCrawler.jar
+#ENTRYPOINT ["java","-jar","/KQXSCrawler.jar
 FROM openjdk:8 AS TEMP_BUILD_IMAGE
 ENV APP_HOME=/usr/app
 WORKDIR $APP_HOME
