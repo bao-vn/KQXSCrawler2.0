@@ -41,6 +41,6 @@ gradle-getting-started/.gradletasknamecache
 
 # # Work around https://youtrack.jetbrains.com/issue/IDEA-116898
 # gradle/wrapper/gradle-wrapper.properties
-gradlew.bat
-gradlew
+# gradlew.bat
+# gradlew
 gradle-getting-started/.gradle
