@@ -1,7 +1,7 @@
 #FROM openjdk:8-jdk-alpine
-#ARG JAR_FILE=target/KQXSCrawler.jar
-#COPY ${JAR_FILE} KQXSCrawler.jar
-#ENTRYPOINT ["java","-jar","/KQXSCrawler.jar
+#ARG JAR_FILE=target/kqxs-crawler.jar
+#COPY ${JAR_FILE} kqxs-crawler.jar
+#ENTRYPOINT ["java","-jar","/kqxs-crawler.jar
 FROM openjdk:8 AS TEMP_BUILD_IMAGE
 ENV APP_HOME=/usr/app
 WORKDIR $APP_HOME
