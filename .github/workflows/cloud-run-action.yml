@@ -35,15 +35,15 @@ jobs:
       
       - name: Build
         run: |
-          docker build -t gcr.io/${{ secrets.GCP_PROJECT_ID }}/gradle-getting-started:latest .
+          docker build -t gcr.io/${{ secrets.GCP_PROJECT_ID }}/KQXSCrawler:latest .
       - name: Push
         run: |
-          docker push gcr.io/${{ secrets.GCP_PROJECT_ID }}/gradle-getting-started:latest
+          docker push gcr.io/${{ secrets.GCP_PROJECT_ID }}/KQXSCrawler:latest
       - name: Deploy
         run: |
-          gcloud run deploy gradle-getting-started \
+          gcloud run deploy KQXSCrawler \
           --region europe-west1 \
-          --image gcr.io/${{ secrets.GCP_PROJECT_ID }}/gradle-getting-started \
+          --image gcr.io/${{ secrets.GCP_PROJECT_ID }}/KQXSCrawler \
           --platform managed \
           --allow-unauthenticated \
           --project ${{ secrets.GCP_PROJECT_ID }}
