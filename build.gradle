@@ -18,6 +18,10 @@ group = 'com.example'
 version = '1.0'
 sourceCompatibility = '1.8'
 
+tasks.named('wrapper') {
+	distributionType = Wrapper.DistributionType.ALL
+}
+
 repositories {
 	mavenCentral()
 }
