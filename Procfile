@@ -1,1 +1,1 @@
-web: java -jar build/libs/kqxscrawler.jar
+web: java -jar build/libs/kqxs-crawler.jar
