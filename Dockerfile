@@ -7,7 +7,7 @@ ENV APP_HOME=/go/src/github.com/bao-vn/KQXSCrawler2.0/
 WORKDIR $APP_HOME
 COPY build.gradle settings.gradle gradlew $APP_HOME
 COPY gradle $APP_HOME/gradle
-COPY ./src ./src
+COPY src $APP_HOME/src
 RUN ./gradlew build || return 0 
 COPY . .
 RUN ./gradlew build
