@@ -5,11 +5,11 @@
 FROM openjdk:8 AS TEMP_BUILD_IMAGE
 ENV APP_HOME=/go/src/github.com/bao-vn/KQXSCrawler2.0/
 WORKDIR $APP_HOME
-COPY build.gradle settings.gradle gradlew $APP_HOME
+COPY build.gradle settings.gradle $APP_HOME
 COPY gradle $APP_HOME/gradle
-RUN ./gradlew build || return 0 
-COPY . .
-RUN ./gradlew build
+#RUN ./gradlew build || return 0 
+#COPY . .
+#RUN ./gradlew build
 
 FROM openjdk:8
 ENV ARTIFACT_NAME=kqxs-crawler-1.0.jar
