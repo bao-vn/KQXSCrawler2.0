@@ -60,3 +60,7 @@ dependencies {
 
 
 }
+
+springBoot {
+	mainClassName = 'com.example.heroku.HerokuApplication'
+}
