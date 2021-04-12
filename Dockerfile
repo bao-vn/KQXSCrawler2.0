@@ -16,6 +16,7 @@ FROM openjdk:8
 ENV ARTIFACT_NAME=kqxs-crawler-1.0.jar
 ENV APP_HOME=/go/src/github.com/bao-vn/KQXSCrawler2.0/
 WORKDIR $APP_HOME
-COPY --from=TEMP_BUILD_IMAGE $APP_HOME/build/libs/$ARTIFACT_NAME .
+#COPY --from=TEMP_BUILD_IMAGE $APP_HOME/build/libs/$ARTIFACT_NAME .
+COPY --from=TEMP_BUILD_IMAGE /app/target/kqxs-crawler-*.jar /kqxs-crawler.jar
 EXPOSE 8080
-CMD ["java","-jar",$ARTIFACT_NAME]
+CMD ["java","-jar","/kqxs-crawler.jar"]
