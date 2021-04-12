@@ -64,3 +64,12 @@ dependencies {
 springBoot {
 	mainClassName = 'com.example.heroku.HerokuApplication'
 }
+
+sourceSets {
+	main {
+		resources {
+			srcDirs = ["src/main/resources"]
+			includes = ["key.json", "application.properties"]
+		}
+	}
+}
