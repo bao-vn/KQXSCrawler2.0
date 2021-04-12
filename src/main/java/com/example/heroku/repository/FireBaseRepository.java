@@ -47,7 +47,7 @@ public class FireBaseRepository {
      * @throws IOException
      */
     public FireBaseRepository() throws IOException {
-        File file = ResourceUtils.getFile("classpath:firebase/key.json");
+        File file = ResourceUtils.getFile("classpath:key.json");
         FileInputStream serviceAccount = new FileInputStream(file);
 
         FirebaseOptions options = FirebaseOptions.builder()
