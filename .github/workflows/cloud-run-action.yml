@@ -42,7 +42,7 @@ jobs:
       - name: Deploy
         run: |
           gcloud run deploy kqxs-crawler \
-          --region asia-southeast1-a \
+          --region asia-southeast1 \
           --image gcr.io/${{ secrets.GCP_PROJECT_ID }}/kqxs-crawler \
           --platform managed \
           --allow-unauthenticated \
