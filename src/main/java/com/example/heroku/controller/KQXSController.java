@@ -1,8 +1,10 @@
 package com.example.heroku.controller;
 
 import com.example.heroku.common.CommonUtils;
+import com.example.heroku.dto.SearchResultDto;
 import com.example.heroku.repository.FireBaseRepository;
 import com.example.heroku.dto.CrawlerDto;
+import com.example.heroku.service.KQXSService;
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.CollectionReference;
 import com.google.cloud.firestore.DocumentReference;
@@ -19,6 +21,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
@@ -36,6 +39,9 @@ public class KQXSController {
 
     @Autowired
     private CommonUtils commonUtils;
+
+    @Autowired
+    private KQXSService kqxsService;
 
     @RequestMapping("/kqxs/mien-bac")
     public ResponseEntity<List<CrawlerDto>> parseKQXS2Json() throws IOException, FeedException, ParseException {
@@ -122,5 +128,14 @@ public class KQXSController {
     @GetMapping("/")
     public String hello() {
         return "Hello World\n";
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<SearchResultDto>> getByNoAndDate(@RequestParam("no") String no, @RequestParam("date") String strDate)
+        throws ExecutionException, InterruptedException {
+        log.info("Search by no = {} and date = {}", no, strDate);
+        List<SearchResultDto> searchResultDtos = kqxsService.getByNoAndDate(no, strDate);
+
+        return new ResponseEntity<>(searchResultDtos, HttpStatus.OK);
     }
 }

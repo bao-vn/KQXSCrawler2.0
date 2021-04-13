@@ -7,21 +7,19 @@ import com.example.heroku.dto.History;
 import com.example.heroku.dto.SearchResultDto;
 import com.example.heroku.repository.FireBaseRepository;
 import com.google.api.core.ApiFuture;
-import com.google.cloud.firestore.CollectionReference;
 import com.google.cloud.firestore.DocumentReference;
 import com.google.cloud.firestore.DocumentSnapshot;
 import com.google.cloud.firestore.Firestore;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class KQXSService {
 
@@ -39,6 +37,8 @@ public class KQXSService {
      * @return List<SearchResultDto>
      */
     public List<SearchResultDto> getByNoAndDate(String no, String strDate) throws ExecutionException, InterruptedException {
+        log.info("getByNoAndDate: no = {} and date = {}", no, strDate);
+
         Firestore firestore = fireBaseRepository.getFireStore();
         String docPath = "tblHistory/" + strDate;
         DocumentReference docHistory = firestore.document(docPath);
@@ -89,6 +89,8 @@ public class KQXSService {
      * @return SearchResultDto
      */
     public SearchResultDto getByNoAndCompany(String no, String company) {
+        log.info("getByNoAndCompany: no = {}, company = {}", no, company);
+
         return new SearchResultDto();
     }
 
@@ -101,6 +103,8 @@ public class KQXSService {
      * @return SearchResultDto
      */
     public SearchResultDto getByNoAndCompanyAndDate(String no, String company, String strDate) throws ExecutionException, InterruptedException {
+        log.info("getByNoAndCompanyAndDate: no = {}, company = {}, date = {}", no, company, strDate);
+
         Firestore firestore = fireBaseRepository.getFireStore();
         String docPath = company + '\\' + strDate;
         DocumentReference docCompany = firestore.document(docPath);
@@ -116,7 +120,15 @@ public class KQXSService {
         return new SearchResultDto();
     }
 
+    /**
+     * Get list of winning prize
+     *
+     * @param results List<String>
+     * @param no String
+     * @return SearchResultDto
+     */
     public SearchResultDto winPrize(List<String> results, String no) {
+        log.info("winPrize: results = {}, no = {}", results, no);
         String winPrize = "";
 
         for (int i = 0; i < results.size(); i++) {

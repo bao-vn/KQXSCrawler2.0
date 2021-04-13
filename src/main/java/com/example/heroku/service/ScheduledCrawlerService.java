@@ -12,7 +12,7 @@ public class ScheduledCrawlerService {
 
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
 
-    @Scheduled(cron = "0 0 16,17,18 * * *")
+    @Scheduled(cron = "0 0 16,17,18,19 * * *")
 //    @Scheduled(fixedRate = 1000)
     public void scheduledCrawl() {
         log.info("The time is now {}", dateFormat.format(new Date()));
