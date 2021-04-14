@@ -11,17 +11,22 @@ import com.google.cloud.firestore.CollectionReference;
 import com.google.cloud.firestore.DocumentReference;
 import com.google.cloud.firestore.DocumentSnapshot;
 import com.google.cloud.firestore.Firestore;
+
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
+import java.util.stream.Collectors;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
+import org.springframework.util.StringUtils;
 
+@Slf4j
 @Service
 public class KQXSService {
 
@@ -31,6 +36,22 @@ public class KQXSService {
     @Autowired
     private CommonUtils commonUtils;
 
+    @Autowired
+    private CompanyService companyService;
+
+    public List<SearchResultDto> searchByNoAndCompanyAndDate(String no, String company, String strDate) throws ExecutionException, InterruptedException {
+        if (!StringUtils.hasText(company)) {
+            return this.getByNoAndDate(no, strDate);
+        } else if (!StringUtils.hasText(strDate)) {
+            return this.getByNoAndCompany(no, company);
+        } else {
+            return Arrays.asList(this.getByNoAndCompanyAndDate(no, company, strDate))
+                    .stream()
+                    .filter(item -> StringUtils.hasText(item.getWinPrizeName()))
+                    .collect(Collectors.toList());
+        }
+    }
+
     /**
      * Get by no and date
      *
@@ -39,6 +60,8 @@ public class KQXSService {
      * @return List<SearchResultDto>
      */
     public List<SearchResultDto> getByNoAndDate(String no, String strDate) throws ExecutionException, InterruptedException {
+        log.info("getByNoAndDate: no = {} and date = {}", no, strDate);
+
         Firestore firestore = fireBaseRepository.getFireStore();
         String docPath = "tblHistory/" + strDate;
         DocumentReference docHistory = firestore.document(docPath);
@@ -63,12 +86,14 @@ public class KQXSService {
             history = documentByDate.toObject(History.class);
 
             List<String> companies = history.getCompanyName();
-            if (CollectionUtils.isEmpty(companies)) {
+            if (!CollectionUtils.isEmpty(companies)) {
                 for (String company : history.getCompanyName()) {
                     results.add(this.getByNoAndCompanyAndDate(no, company, strDate));
                 }
 
-                return results;
+                return results.stream()
+                    .filter(item -> StringUtils.hasText(item.getWinPrizeName()))
+                    .collect(Collectors.toList());
             }
         }
 
@@ -86,10 +111,21 @@ public class KQXSService {
      *
      * @param no String
      * @param company String
-     * @return SearchResultDto
+     * @return List<SearchResultDto>
      */
-    public SearchResultDto getByNoAndCompany(String no, String company) {
-        return new SearchResultDto();
+    public List<SearchResultDto> getByNoAndCompany(String no, String company) throws ExecutionException, InterruptedException {
+        log.info("getByNoAndCompany: no = {}, company = {}", no, company);
+
+        List<SearchResultDto> searchResultDtos = new ArrayList<>();
+
+        Firestore firestore = fireBaseRepository.getFireStore();
+        CollectionReference collection = firestore.collection(company);
+
+        for (DocumentReference listDocument : collection.listDocuments()) {
+            searchResultDtos.add(this.getByDocumentReference(listDocument, no, company));
+        }
+
+        return searchResultDtos;
     }
 
     /**
@@ -101,32 +137,53 @@ public class KQXSService {
      * @return SearchResultDto
      */
     public SearchResultDto getByNoAndCompanyAndDate(String no, String company, String strDate) throws ExecutionException, InterruptedException {
+        log.info("getByNoAndCompanyAndDate: no = {}, company = {}, date = {}", no, company, strDate);
+
         Firestore firestore = fireBaseRepository.getFireStore();
-        String docPath = company + '\\' + strDate;
+        String docPath = company + '/' + strDate;
         DocumentReference docCompany = firestore.document(docPath);
 
+        return this.getByDocumentReference(docCompany, no, company);
+    }
+
+    public SearchResultDto getByDocumentReference(DocumentReference docCompany, String no, String company) throws ExecutionException, InterruptedException {
+        SearchResultDto resultDto = new SearchResultDto();
         ApiFuture<DocumentSnapshot> future = docCompany.get();
         DocumentSnapshot result = future.get();
 
         if (result.exists()) {
             CrawlerDto resultByCompanyAndDate = result.toObject(CrawlerDto.class);
-            return this.winPrize(resultByCompanyAndDate.getResults(), no);
+            resultDto = this.winPrize(resultByCompanyAndDate.getResults(), no);
+            resultDto.setCompanyName(company);
         }
 
-        return new SearchResultDto();
+        return resultDto;
     }
 
+    /**
+     * Get list of winning prize
+     *
+     * @param results List<String>
+     * @param no String
+     * @return SearchResultDto
+     */
     public SearchResultDto winPrize(List<String> results, String no) {
-        String winPrize = "";
+        log.info("winPrize: results = {}, no = {}", results, no);
+        String winPrizeName = "";
+        String winResult = "";
 
         for (int i = 0; i < results.size(); i++) {
-            if (results.get(i).contains(no)) {
-                winPrize = String.valueOf(i);
+            if (StringUtils.hasText(results.get(i))
+                && commonUtils.isWinningPrize(no, results.get(i))) {
+                winPrizeName = String.valueOf(i);
+                winResult = results.get(i);
             }
         }
 
         return SearchResultDto.builder()
-                .winPrizeName(winPrize)
+                .results(results)
+                .winPrizeName(winPrizeName)
+                .winResult(winResult)
                 .build();
     }
 }

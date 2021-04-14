@@ -3,6 +3,7 @@ package com.example.heroku.common;
 import com.example.heroku.dto.CrawlerDto;
 
 import java.lang.reflect.Field;
+import java.text.Normalizer;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -165,12 +166,19 @@ public class CommonUtils {
         return companyWithPrizeList;
     }
 
+    /**
+     * Parse company name from title of rss link
+     * Convert non ASCII to ASCII
+     * 
+     * @param title String Unicode
+     * @return String
+     */
     public String parseCompanyNameFromTitleLink(String title) {
         String name = title.split("RSS feed xổ số ")[1];
-//        ByteArrayOutputStream arrayOutputStream = name.getBytes(StandardCharsets.UTF_8);
-//        OutputStreamWriter out = new OutputStreamWriter(arrayOutputStream);
-//        name = out.getEncoding();
-        name = name.replace(" ", "").replaceAll("[^\\x20-\\x7e]", "");
+        name = name.replace(" ", "");
+        name = Normalizer.normalize(name, Normalizer.Form.NFD);
+        name = name.replaceAll("Đ", "D");
+        name = name.replaceAll("\\P{InBasic_Latin}", "");
 
         return name;
     }
@@ -188,5 +196,33 @@ public class CommonUtils {
         LocalDate date = LocalDate.parse(strDate, dateTimeFormatter);
 
         return now.isAfter(date.plusDays(30));
+    }
+
+    /**
+     * Compare with prize's result.
+     *
+     * @param no String input
+     * @param compareResult prize's result
+     * @return boolean true: is winning prize
+     */
+    public boolean isWinningPrize(String no, String compareResult) {
+        String subNo = no;
+        int endOfNumberComparing = compareResult.split("-")[0].length();
+
+        // Get subString of No to compare with prize's result
+        if (subNo.length() >= endOfNumberComparing) {
+            subNo = subNo.substring(subNo.length() - endOfNumberComparing);
+        } else {
+            return false; // subNo doesn't have length enough to compare
+        }
+
+        String[] arrCompareResult = compareResult.split("-");
+        for (String result : arrCompareResult) {
+            if (result.equals(subNo)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

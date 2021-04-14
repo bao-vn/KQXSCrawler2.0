@@ -29,6 +29,12 @@ public class CrawlerController {
         return new ResponseEntity<>("Hehe, save successful!!!", HttpStatus.OK);
     }
 
+    /**
+     * Crawl data from https://xskt.com.vn/
+     *
+     * @return List<Company>
+     * @throws IOException
+     */
     @GetMapping("/crawl")
     public ResponseEntity<List<Company>> crawlRssLinks() throws IOException {
         List<Company> rssLinks = crawlerService.crawlRssLinks();

@@ -11,6 +11,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SearchResultDto {
+    private String companyName;
+
     /** All results of prizes */
     private List<String> results;
 

@@ -1,11 +1,11 @@
 package com.example.heroku.dto;
 
+import com.google.cloud.Timestamp;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Date;
 import java.util.List;
 
 @Builder
@@ -20,5 +20,7 @@ public class History {
     private String strDate;
 
     /** publishedDate */
-    private Date date;
+    private String date;
+
+    private Timestamp updatedTime;
 }
