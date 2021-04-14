@@ -106,6 +106,7 @@ public class KQXSService {
     public SearchResultDto getByNoAndCompanyAndDate(String no, String company, String strDate) throws ExecutionException, InterruptedException {
         log.info("getByNoAndCompanyAndDate: no = {}, company = {}, date = {}", no, company, strDate);
 
+        SearchResultDto resultDto = new SearchResultDto();
         Firestore firestore = fireBaseRepository.getFireStore();
         String docPath = company + '/' + strDate;
         DocumentReference docCompany = firestore.document(docPath);
@@ -115,10 +116,11 @@ public class KQXSService {
 
         if (result.exists()) {
             CrawlerDto resultByCompanyAndDate = result.toObject(CrawlerDto.class);
-            return this.winPrize(resultByCompanyAndDate.getResults(), no);
+            resultDto = this.winPrize(resultByCompanyAndDate.getResults(), no);
+            resultDto.setCompanyName(company);
         }
 
-        return new SearchResultDto();
+        return resultDto;
     }
 
     /**
@@ -130,16 +132,20 @@ public class KQXSService {
      */
     public SearchResultDto winPrize(List<String> results, String no) {
         log.info("winPrize: results = {}, no = {}", results, no);
-        String winPrize = "";
+        String winPrizeName = "";
+        String winResult = "";
 
         for (int i = 0; i < results.size(); i++) {
             if (StringUtils.hasText(results.get(i)) && results.get(i).contains(no)) {
-                winPrize = String.valueOf(i);
+                winPrizeName = String.valueOf(i);
+                winResult = results.get(i);
             }
         }
 
         return SearchResultDto.builder()
-                .winPrizeName(winPrize)
+                .results(results)
+                .winPrizeName(winPrizeName)
+                .winResult(winResult)
                 .build();
     }
 }
