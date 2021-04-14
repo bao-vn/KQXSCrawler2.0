@@ -18,11 +18,23 @@ public class CompanyController {
     @Autowired
     private CompanyService companyService;
 
+    /**
+     * Get list of company name
+     *
+     * @return List<String>
+     */
     @RequestMapping("/company-path")
     public ResponseEntity<List<String>> getCompanyPaths() {
         return new ResponseEntity<>(companyService.getCompanyPaths(), HttpStatus.OK);
     }
 
+    /**
+     * get list of Collection Company contained KQXS
+     *
+     * @return List<Company>
+     * @throws ExecutionException
+     * @throws InterruptedException
+     */
     @RequestMapping("/company")
     public ResponseEntity<List<Company>> getCompanies() throws ExecutionException, InterruptedException {
         return new ResponseEntity<>(companyService.getCompanies(), HttpStatus.OK);
@@ -31,6 +43,6 @@ public class CompanyController {
     @RequestMapping("/company/save")
     public ResponseEntity<String> saveCompanies() throws ExecutionException, InterruptedException, IOException {
         companyService.saveCompanies();
-        return new ResponseEntity<String>("hehe, successful!!!", HttpStatus.OK);
+        return new ResponseEntity<String>("hehe, saveCompanies successful!!!", HttpStatus.OK);
     }
 }

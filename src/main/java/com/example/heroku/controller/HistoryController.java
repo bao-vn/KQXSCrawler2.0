@@ -45,13 +45,13 @@ public class HistoryController {
     public ResponseEntity<String> syncHistoryByCollectionID(@PathVariable("colPath") String colPath) throws ExecutionException, InterruptedException {
         historyService.syncHistoryByCollectionID(colPath);
 
-        return new ResponseEntity<>("Hehe, successful", HttpStatus.OK);
+        return new ResponseEntity<>("Hehe, syncHistoryByCollectionID successful", HttpStatus.OK);
     }
 
     @GetMapping("/doc/sync-all")
     public ResponseEntity<String> syncHistoryAllDB() throws ExecutionException, InterruptedException {
         historyService.syncHistoryAllDB();
 
-        return new ResponseEntity<>("Hehe, successful", HttpStatus.OK);
+        return new ResponseEntity<>("Hehe, syncHistoryAllDB successful", HttpStatus.OK);
     }
 }
