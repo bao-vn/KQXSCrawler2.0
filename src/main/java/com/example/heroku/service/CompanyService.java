@@ -61,12 +61,13 @@ public class CompanyService {
      * @throws InterruptedException firebase exception
      */
     public List<Company> getCompanies() throws ExecutionException, InterruptedException {
+        // Get list of companies in Collection "tblCompanies"
         List<String> companyPaths = this.getCompanyPaths();
         List<Company> companies = new ArrayList<>();
         Firestore firestore = fireBaseRepository.getFireStore();
 
         for (String companyPath : companyPaths) {
-            DocumentReference documentReference = firestore.document(companyPath);
+            DocumentReference documentReference = firestore.document(KQXS_COLLECTION +"/" + companyPath);
             DocumentSnapshot docSnapShot = documentReference.get().get();
 
             if (docSnapShot.exists()) {
