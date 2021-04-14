@@ -18,6 +18,7 @@ import org.springframework.util.CollectionUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import org.springframework.util.StringUtils;
 
 @Slf4j
 @Service
@@ -63,7 +64,7 @@ public class KQXSService {
             history = documentByDate.toObject(History.class);
 
             List<String> companies = history.getCompanyName();
-            if (CollectionUtils.isEmpty(companies)) {
+            if (!CollectionUtils.isEmpty(companies)) {
                 for (String company : history.getCompanyName()) {
                     results.add(this.getByNoAndCompanyAndDate(no, company, strDate));
                 }
@@ -106,7 +107,7 @@ public class KQXSService {
         log.info("getByNoAndCompanyAndDate: no = {}, company = {}, date = {}", no, company, strDate);
 
         Firestore firestore = fireBaseRepository.getFireStore();
-        String docPath = company + '\\' + strDate;
+        String docPath = company + '/' + strDate;
         DocumentReference docCompany = firestore.document(docPath);
 
         ApiFuture<DocumentSnapshot> future = docCompany.get();
@@ -132,7 +133,7 @@ public class KQXSService {
         String winPrize = "";
 
         for (int i = 0; i < results.size(); i++) {
-            if (results.get(i).contains(no)) {
+            if (StringUtils.hasText(results.get(i)) && results.get(i).contains(no)) {
                 winPrize = String.valueOf(i);
             }
         }
