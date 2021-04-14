@@ -3,6 +3,7 @@ package com.example.heroku.common;
 import com.example.heroku.dto.CrawlerDto;
 
 import java.lang.reflect.Field;
+import java.text.Normalizer;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -165,12 +166,19 @@ public class CommonUtils {
         return companyWithPrizeList;
     }
 
+    /**
+     * Parse company name from title of rss link
+     * Convert non ASCII to ASCII
+     * 
+     * @param title String Unicode
+     * @return String
+     */
     public String parseCompanyNameFromTitleLink(String title) {
         String name = title.split("RSS feed xổ số ")[1];
-//        ByteArrayOutputStream arrayOutputStream = name.getBytes(StandardCharsets.UTF_8);
-//        OutputStreamWriter out = new OutputStreamWriter(arrayOutputStream);
-//        name = out.getEncoding();
-        name = name.replace(" ", "").replaceAll("[^\\x20-\\x7e]", "");
+        name = name.replace(" ", "");
+        name = Normalizer.normalize(name, Normalizer.Form.NFD);
+        name = name.replaceAll("Đ", "D");
+        name = name.replaceAll("\\P{InBasic_Latin}", "");
 
         return name;
     }
