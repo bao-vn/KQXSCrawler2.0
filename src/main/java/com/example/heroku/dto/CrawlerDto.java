@@ -1,5 +1,6 @@
 package com.example.heroku.dto;
 
+import com.google.cloud.Timestamp;
 import com.google.cloud.firestore.FieldValue;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -29,5 +30,5 @@ public class CrawlerDto {
     /** ĐB: 707018 1: 54311 2: 41652 3: 01202 - 78423 4: 53677 - 58657 - 75149 - 51452 - 24755 - 26234 - 63484 5: 6262 6: 9036 - 1564 - 7961 7: 7198: 65 */
     private List<String> results;
 
-    private FieldValue updatedTime;
+    private Timestamp updatedTime;
 }

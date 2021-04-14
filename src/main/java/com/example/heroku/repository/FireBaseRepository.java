@@ -2,10 +2,13 @@ package com.example.heroku.repository;
 
 import com.example.heroku.common.CommonUtils;
 import com.example.heroku.dto.CrawlerDto;
+import com.google.api.core.ApiFuture;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.firestore.DocumentReference;
 import com.google.cloud.firestore.FieldValue;
 import com.google.cloud.firestore.Firestore;
+import com.google.cloud.firestore.SetOptions;
+import com.google.cloud.firestore.WriteResult;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import com.google.firebase.cloud.FirestoreClient;
@@ -17,6 +20,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
+import java.util.concurrent.ExecutionException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -91,9 +95,14 @@ public class FireBaseRepository {
      * @param pathDocument String document ID: "collection/document"
      * @param crawlerDtos KQXSDto data
      */
-    public void saveResults(String pathDocument, CrawlerDto crawlerDtos) {
+    public void saveResults(String pathDocument, CrawlerDto crawlerDtos) throws ExecutionException, InterruptedException {
         DocumentReference documentReference = this.firestore.document(pathDocument);
-        crawlerDtos.setUpdatedTime(FieldValue.serverTimestamp());
-        documentReference.set(crawlerDtos);
+        ApiFuture<WriteResult> initial = documentReference.set(crawlerDtos);
+        initial.get();
+
+        // updatedTime
+        Map<String, Object> updatedTime = new HashMap<>();
+        updatedTime.put("updatedTime", FieldValue.serverTimestamp());
+        documentReference.set(updatedTime, SetOptions.merge());
     }
 }
