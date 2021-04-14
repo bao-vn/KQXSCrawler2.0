@@ -87,9 +87,18 @@ public class CrawlerService {
         return crawlerDtos;
     }
 
-    public void save(Company company) throws IOException, FeedException, ParseException {
+    /**
+     * Save results in Collection
+     *
+     * @param company company info
+     * @throws IOException
+     * @throws FeedException
+     * @throws ParseException
+     * @throws ExecutionException
+     * @throws InterruptedException
+     */
+    public void save(Company company) throws IOException, FeedException, ParseException, ExecutionException, InterruptedException {
         // format pathDocument = "tblBinhDinh/<yyyy-MM-dd>"
-//        String url = "https://xskt.com.vn/rss-feed/binh-dinh-xsbdi.rss";
         List<CrawlerDto> crawlerDtos = this.getKQXSFromRssLink(company.getLink());
 
         for (CrawlerDto crawlerDto : crawlerDtos) {
