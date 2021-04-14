@@ -197,4 +197,32 @@ public class CommonUtils {
 
         return now.isAfter(date.plusDays(30));
     }
+
+    /**
+     * Compare with prize's result.
+     *
+     * @param no String input
+     * @param compareResult prize's result
+     * @return boolean true: is winning prize
+     */
+    public boolean isWinningPrize(String no, String compareResult) {
+        String subNo = no;
+        int endOfNumberComparing = compareResult.split("-")[0].length();
+
+        // Get subString of No to compare with prize's result
+        if (subNo.length() > endOfNumberComparing) {
+            subNo = subNo.substring(subNo.length() - endOfNumberComparing);
+        } else {
+            return false; // subNo doesn't have length enough to compare
+        }
+
+        String[] arrCompareResult = compareResult.split("-");
+        for (String result : arrCompareResult) {
+            if (result.equals(subNo)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }

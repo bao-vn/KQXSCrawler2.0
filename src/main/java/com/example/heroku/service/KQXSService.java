@@ -10,6 +10,7 @@ import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.DocumentReference;
 import com.google.cloud.firestore.DocumentSnapshot;
 import com.google.cloud.firestore.Firestore;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -69,7 +70,9 @@ public class KQXSService {
                     results.add(this.getByNoAndCompanyAndDate(no, company, strDate));
                 }
 
-                return results;
+                return results.stream()
+                    .filter(item -> StringUtils.hasText(item.getWinPrizeName()))
+                    .collect(Collectors.toList());
             }
         }
 
@@ -136,7 +139,8 @@ public class KQXSService {
         String winResult = "";
 
         for (int i = 0; i < results.size(); i++) {
-            if (StringUtils.hasText(results.get(i)) && results.get(i).contains(no)) {
+            if (StringUtils.hasText(results.get(i))
+                && commonUtils.isWinningPrize(no, results.get(i))) {
                 winPrizeName = String.valueOf(i);
                 winResult = results.get(i);
             }
