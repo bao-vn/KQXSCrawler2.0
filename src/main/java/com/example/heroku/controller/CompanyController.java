@@ -40,6 +40,14 @@ public class CompanyController {
         return new ResponseEntity<>(companyService.getCompanies(), HttpStatus.OK);
     }
 
+    /**
+     *
+     *
+     * @return
+     * @throws ExecutionException
+     * @throws InterruptedException
+     * @throws IOException
+     */
     @RequestMapping("/company/save")
     public ResponseEntity<String> saveCompanies() throws ExecutionException, InterruptedException, IOException {
         companyService.saveCompanies();

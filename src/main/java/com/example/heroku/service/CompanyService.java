@@ -37,7 +37,7 @@ public class CompanyService {
     /**
      * Get list of company from DB
      *
-     * @return List<String>
+     * @return List<String>: AnGiang, BinhDinh, BinhDuong...
      */
     public List<String> getCompanyPaths() {
         Firestore firestore = fireBaseRepository.getFireStore();
@@ -95,6 +95,14 @@ public class CompanyService {
         return companies;
     }
 
+    /**
+     * Save information(companyName, link, updatedTime) of companies in collection tblCompanies
+     *
+     * @param docPath String
+     * @param company Company
+     * @throws ExecutionException
+     * @throws InterruptedException
+     */
     public void saveCompany(String docPath, Company company) throws ExecutionException, InterruptedException {
         Firestore firestore = fireBaseRepository.getFireStore();
         CollectionReference colCompanies = firestore.collection("tblCompanies");
@@ -106,6 +114,13 @@ public class CompanyService {
         documentReference.set(updatedTime, SetOptions.merge());
     }
 
+    /**
+     * Get list of companies from rss links and save to firebase
+     *
+     * @throws IOException
+     * @throws ExecutionException
+     * @throws InterruptedException
+     */
     public void saveCompanies() throws IOException, ExecutionException, InterruptedException {
         List<Company> companies = crawlerService.crawlRssLinks();
 
