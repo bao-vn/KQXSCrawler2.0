@@ -7,9 +7,14 @@ import com.example.heroku.dto.History;
 import com.example.heroku.dto.SearchResultDto;
 import com.example.heroku.repository.FireBaseRepository;
 import com.google.api.core.ApiFuture;
+import com.google.cloud.firestore.CollectionReference;
 import com.google.cloud.firestore.DocumentReference;
 import com.google.cloud.firestore.DocumentSnapshot;
 import com.google.cloud.firestore.Firestore;
+
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +35,22 @@ public class KQXSService {
 
     @Autowired
     private CommonUtils commonUtils;
+
+    @Autowired
+    private CompanyService companyService;
+
+    public List<SearchResultDto> searchByNoAndCompanyAndDate(String no, String company, String strDate) throws ExecutionException, InterruptedException {
+        if (!StringUtils.hasText(company)) {
+            return this.getByNoAndDate(no, strDate);
+        } else if (!StringUtils.hasText(strDate)) {
+            return this.getByNoAndCompany(no, company);
+        } else {
+            return Arrays.asList(this.getByNoAndCompanyAndDate(no, company, strDate))
+                    .stream()
+                    .filter(item -> StringUtils.hasText(item.getWinPrizeName()))
+                    .collect(Collectors.toList());
+        }
+    }
 
     /**
      * Get by no and date
@@ -90,12 +111,21 @@ public class KQXSService {
      *
      * @param no String
      * @param company String
-     * @return SearchResultDto
+     * @return List<SearchResultDto>
      */
-    public SearchResultDto getByNoAndCompany(String no, String company) {
+    public List<SearchResultDto> getByNoAndCompany(String no, String company) throws ExecutionException, InterruptedException {
         log.info("getByNoAndCompany: no = {}, company = {}", no, company);
 
-        return new SearchResultDto();
+        List<SearchResultDto> searchResultDtos = new ArrayList<>();
+
+        Firestore firestore = fireBaseRepository.getFireStore();
+        CollectionReference collection = firestore.collection(company);
+
+        for (DocumentReference listDocument : collection.listDocuments()) {
+            searchResultDtos.add(this.getByDocumentReference(listDocument, no, company));
+        }
+
+        return searchResultDtos;
     }
 
     /**
@@ -109,11 +139,15 @@ public class KQXSService {
     public SearchResultDto getByNoAndCompanyAndDate(String no, String company, String strDate) throws ExecutionException, InterruptedException {
         log.info("getByNoAndCompanyAndDate: no = {}, company = {}, date = {}", no, company, strDate);
 
-        SearchResultDto resultDto = new SearchResultDto();
         Firestore firestore = fireBaseRepository.getFireStore();
         String docPath = company + '/' + strDate;
         DocumentReference docCompany = firestore.document(docPath);
 
+        return this.getByDocumentReference(docCompany, no, company);
+    }
+
+    public SearchResultDto getByDocumentReference(DocumentReference docCompany, String no, String company) throws ExecutionException, InterruptedException {
+        SearchResultDto resultDto = new SearchResultDto();
         ApiFuture<DocumentSnapshot> future = docCompany.get();
         DocumentSnapshot result = future.get();
 

@@ -131,10 +131,12 @@ public class KQXSController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<SearchResultDto>> getByNoAndDate(@RequestParam("no") String no, @RequestParam("date") String strDate)
+    public ResponseEntity<List<SearchResultDto>> getByNoAndDate(@RequestParam(value = "no") String no
+            , @RequestParam(value = "companyName", required = false) String strCompanyName
+            , @RequestParam(value = "date", required = false) String strDate)
         throws ExecutionException, InterruptedException {
         log.info("Search by no = {} and date = {}", no, strDate);
-        List<SearchResultDto> searchResultDtos = kqxsService.getByNoAndDate(no, strDate);
+        List<SearchResultDto> searchResultDtos = kqxsService.searchByNoAndCompanyAndDate(no, strCompanyName, strDate);
 
         return new ResponseEntity<>(searchResultDtos, HttpStatus.OK);
     }

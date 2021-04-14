@@ -210,7 +210,7 @@ public class CommonUtils {
         int endOfNumberComparing = compareResult.split("-")[0].length();
 
         // Get subString of No to compare with prize's result
-        if (subNo.length() > endOfNumberComparing) {
+        if (subNo.length() >= endOfNumberComparing) {
             subNo = subNo.substring(subNo.length() - endOfNumberComparing);
         } else {
             return false; // subNo doesn't have length enough to compare
