@@ -1,6 +1,7 @@
 package com.example.heroku.controller;
 
 import com.example.heroku.common.CommonUtils;
+import com.example.heroku.dto.JsonCrawlerDto;
 import com.example.heroku.dto.JsonResultDto;
 import com.example.heroku.repository.FireBaseRepository;
 import com.example.heroku.dto.CrawlerDto;
@@ -20,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -141,7 +143,7 @@ public class KQXSController {
      * @throws InterruptedException
      */
     @GetMapping("/search")
-    public ResponseEntity<List<JsonResultDto>> getByNoAndCompanyNameAndDate(@RequestParam(value = "no", required = false) String no
+    public ResponseEntity<List<JsonResultDto>> getByNoAndCompanyNameAndDate(@RequestParam(value = "no") String no
             , @RequestParam(value = "companyName", required = false) String strCompanyName
             , @RequestParam(value = "date", required = false) String strDate)
         throws ExecutionException, InterruptedException {
@@ -149,5 +151,22 @@ public class KQXSController {
         List<JsonResultDto> searchResultDtos = kqxsService.searchByNoAndCompanyAndDate(no, strCompanyName, strDate);
 
         return new ResponseEntity<>(searchResultDtos, HttpStatus.OK);
+    }
+
+    /**
+     * Get results by companyName and date
+     *
+     * @param companyName String
+     * @param date String
+     * @return List<JsonCrawlerDto>
+     */
+    @GetMapping("company/{companyName}/date/{date}")
+    public ResponseEntity<JsonCrawlerDto> getByCompanyNameAndDate(@PathVariable("companyName") String companyName
+        , @PathVariable("date") String date) throws ExecutionException, InterruptedException {
+        log.info("getByCompanyNameAndDate: companyName = {}, date = {}", companyName, date);
+
+        JsonCrawlerDto jsonCrawlerDtos = kqxsService.getByCompanyNameAndDate(companyName, date);
+
+        return new ResponseEntity<>(jsonCrawlerDtos, HttpStatus.OK);
     }
 }
