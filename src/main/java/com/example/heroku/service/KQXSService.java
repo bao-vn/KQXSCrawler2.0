@@ -58,8 +58,7 @@ public class KQXSService {
      */
     public List<DivideResultDto> searchByNoAndCompanyAndDate(String no, String company, String strDate) throws ExecutionException, InterruptedException {
         // company and date is empty
-        if (!StringUtils.hasText(company)
-            && !StringUtils.hasText(strDate)) {
+        if (!commonUtils.isValidNumberOfParameter(new String[]{no, company, strDate}, 2)) {
             return new ArrayList<>();
         }
 
