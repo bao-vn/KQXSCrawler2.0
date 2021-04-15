@@ -25,11 +25,12 @@ hs_err_pid*
 # build gradle
 /.gradle
 /.idea
-/build/!libs/
-/build/reports/
-/build/test-results/
-/build/tmp/
-/build/resources/
+/build/
+#/build/!libs/
+#/build/reports/
+#/build/test-results/
+#/build/tmp/
+#/build/resources/
 /!src/**/build/
 
 # Ignore Gradle GUI config
