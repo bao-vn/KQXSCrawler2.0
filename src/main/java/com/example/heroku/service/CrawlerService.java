@@ -28,6 +28,9 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.net.URL;
 
+/**
+ * Crawl from rss link
+ */
 @Service
 public class CrawlerService {
     @Autowired
