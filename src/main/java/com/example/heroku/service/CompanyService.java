@@ -23,6 +23,9 @@ import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
+/**
+ * tblCompanies
+ */
 @Slf4j
 @Service
 public class CompanyService {

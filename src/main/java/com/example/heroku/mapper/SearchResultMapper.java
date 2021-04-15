@@ -1,10 +1,9 @@
 package com.example.heroku.mapper;
 
 import com.example.heroku.common.Constants;
-import com.example.heroku.dto.DivideResultDto;
+import com.example.heroku.dto.JsonResultDto;
 import com.example.heroku.dto.ResultDto;
 import com.example.heroku.dto.SearchResultDto;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -39,8 +38,8 @@ public class SearchResultMapper {
      * @param searchResultDto SearchResultDto
      * @return DivideResultDto
      */
-    public DivideResultDto toDivideResultDtoFromSearchResultDto(SearchResultDto searchResultDto) {
-        return DivideResultDto.builder()
+    public JsonResultDto toDivideResultDtoFromSearchResultDto(SearchResultDto searchResultDto) {
+        return JsonResultDto.builder()
             .companyName(searchResultDto.getCompanyName())
             .results(this.toResultDtoFromList(searchResultDto.getResults()))
             .winPrizeName(searchResultDto.getWinPrizeName())
@@ -55,7 +54,7 @@ public class SearchResultMapper {
      * @param searchResultDtos List<SearchResultDto>
      * @return List<DivideResultDto>
      */
-    public List<DivideResultDto> toDivideResultDtoListFromSearchResultDtoList(List<SearchResultDto> searchResultDtos) {
+    public List<JsonResultDto> toDivideResultDtoListFromSearchResultDtoList(List<SearchResultDto> searchResultDtos) {
         return searchResultDtos.stream().map(this::toDivideResultDtoFromSearchResultDto).collect(Collectors.toList());
     }
 
