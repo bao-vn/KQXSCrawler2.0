@@ -3,9 +3,11 @@ package com.example.heroku.service;
 import com.example.heroku.common.CommonUtils;
 import com.example.heroku.common.Constants;
 import com.example.heroku.dto.CrawlerDto;
+import com.example.heroku.dto.JsonCrawlerDto;
 import com.example.heroku.dto.JsonResultDto;
 import com.example.heroku.dto.History;
 import com.example.heroku.dto.SearchResultDto;
+import com.example.heroku.mapper.CrawlerMapper;
 import com.example.heroku.mapper.SearchResultMapper;
 import com.example.heroku.repository.FireBaseRepository;
 import com.google.api.core.ApiFuture;
@@ -14,6 +16,8 @@ import com.google.cloud.firestore.DocumentReference;
 import com.google.cloud.firestore.DocumentSnapshot;
 import com.google.cloud.firestore.Firestore;
 
+import java.util.Arrays;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
@@ -42,6 +46,9 @@ public class KQXSService {
     @Autowired
     private SearchResultMapper searchResultMapper;
 
+    @Autowired
+    private CrawlerMapper crawlerMapper;
+
     /**
      * Redirect to other service searching based on parameter(no, company, date)
      *
@@ -63,7 +70,7 @@ public class KQXSService {
         } else if (!StringUtils.hasText(strDate)) {
             return searchResultMapper.toDivideResultDtoListFromSearchResultDtoList(this.getByNoAndCompany(no, company));
         } else {
-            return Stream.of(searchResultMapper.toDivideResultDtoFromSearchResultDto(this.getByNoAndCompanyAndDate(no, company, strDate)))
+                return Stream.of(searchResultMapper.toDivideResultDtoFromSearchResultDto(this.getByNoAndCompanyAndDate(no, company, strDate)))
                     .filter(item -> StringUtils.hasText(item.getWinPrizeName()))
                     .collect(Collectors.toList());
         }
@@ -76,8 +83,18 @@ public class KQXSService {
      * @param strDate String
      * @return CrawlerDto
      */
-    public CrawlerDto getByCompanyNameAndDate(String companyName, String strDate) {
+    public JsonCrawlerDto getByCompanyNameAndDate(String companyName, String strDate) throws ExecutionException, InterruptedException {
+        Firestore firestore = fireBaseRepository.getFireStore();
+        DocumentReference documentReference = firestore.document(companyName + "/" + strDate);
 
+        ApiFuture<DocumentSnapshot> future = documentReference.get();
+        DocumentSnapshot snapshot = future.get();
+
+        if (snapshot.exists()) {
+            return crawlerMapper.toJsonCrawlerDto(Objects.requireNonNull(snapshot.toObject(CrawlerDto.class)));
+        }
+
+        return new JsonCrawlerDto();
     }
 
     /**
