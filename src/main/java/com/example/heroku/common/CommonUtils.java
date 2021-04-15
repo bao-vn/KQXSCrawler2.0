@@ -10,17 +10,17 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
-import java.util.*;
 
-import org.apache.commons.lang3.StringUtils;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 @Service
 public class CommonUtils {
-    public boolean isEmptyOrWhiteSpaces(String source) {
-        return StringUtils.isEmpty(source) && StringUtils.isBlank(source);
-    }
-
     /**
      * Convert KQXSDto to Map<String, Object>
      *
@@ -100,7 +100,7 @@ public class CommonUtils {
                 break;
             }
 
-            if (StringUtils.isEmpty(item) || StringUtils.isBlank(item)) {
+            if (!StringUtils.hasText(item)) {
                 continue;
             }
 
@@ -108,8 +108,9 @@ public class CommonUtils {
             String[] resultWithTitlePrize = item.split(":");
 
             if (resultWithTitlePrize.length < 2
-                    || ((StringUtils.isEmpty(resultWithTitlePrize[0]) || StringUtils.isBlank(resultWithTitlePrize[0]))
-                    && (StringUtils.isEmpty(resultWithTitlePrize[1]) || StringUtils.isBlank(resultWithTitlePrize[1])))) {
+                    || (!StringUtils.hasText(resultWithTitlePrize[0])
+                        && (!StringUtils.hasText(resultWithTitlePrize[1])))
+            ) {
                 continue;
             }
 
@@ -118,7 +119,7 @@ public class CommonUtils {
 
             // GiaiTam
             if (resultWithTitlePrize.length == 3 && indexPrizeName == 7
-                    && !this.isEmptyOrWhiteSpaces(resultWithTitlePrize[2])) {
+                    && StringUtils.hasText(resultWithTitlePrize[2])) {
                 prizeList.add(resultWithTitlePrize[2].trim());
             }
             indexPrizeName++;
@@ -143,15 +144,15 @@ public class CommonUtils {
         int indexPrizeName = 0;
         for (String item: splitByCompanyName) {
             // item = Cần Thơ] ĐB: 414303 1: 51374 2: 50151 3: 51102 - 31421 4: 77132 - 16282 - 27680 - 24815 - 84724 - 87059 - 08557 5: 2523 6: 6215 - 4816 - 7933 7: 2228: 06
-            if (StringUtils.isEmpty(item) || StringUtils.isBlank(item)) {
+            if (!StringUtils.hasText(item)) {
                 continue;
             }
 
             // result = ["Cần Thơ"," ĐB: 414303 1: 51374 2: 50151 3: 51102 - 31421 4: 77132 - 16282 - 27680 - 24815 - 84724 - 87059 - 08557 5: 2523 6: 6215 - 4816 - 7933 7: 2228: 06"]
             String[] parseIntoResult = item.split("\\]");
             if (parseIntoResult.length < 2
-                    || (StringUtils.isEmpty(parseIntoResult[0]) || StringUtils.isBlank(parseIntoResult[0])
-                    && StringUtils.isEmpty(parseIntoResult[1]) || StringUtils.isBlank(parseIntoResult[1]))
+                    || (!StringUtils.hasText(parseIntoResult[0])
+                    && !StringUtils.hasText(parseIntoResult[1]))
             ) {
                 continue;
             }
@@ -224,5 +225,23 @@ public class CommonUtils {
         }
 
         return false;
+    }
+
+    /**
+     * Is valid number of parameter
+     *
+     * @param parameters String[]
+     * @param iValidNumber int
+     * @return boolean
+     */
+    public boolean isValidNumberOfParameter(String[] parameters, int iValidNumber) {
+        int currValid = 0;
+        for (String parameter : parameters) {
+            if (StringUtils.hasText(parameter)) {
+                currValid++;
+            }
+        }
+
+        return currValid >= iValidNumber;
     }
 }
