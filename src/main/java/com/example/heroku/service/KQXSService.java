@@ -3,8 +3,10 @@ package com.example.heroku.service;
 import com.example.heroku.common.CommonUtils;
 import com.example.heroku.common.Constants;
 import com.example.heroku.dto.CrawlerDto;
+import com.example.heroku.dto.DivideResultDto;
 import com.example.heroku.dto.History;
 import com.example.heroku.dto.SearchResultDto;
+import com.example.heroku.mapper.SearchResultMapper;
 import com.example.heroku.repository.FireBaseRepository;
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.CollectionReference;
@@ -15,7 +17,9 @@ import com.google.cloud.firestore.Firestore;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -39,14 +43,32 @@ public class KQXSService {
     @Autowired
     private CompanyService companyService;
 
-    public List<SearchResultDto> searchByNoAndCompanyAndDate(String no, String company, String strDate) throws ExecutionException, InterruptedException {
+    @Autowired
+    private SearchResultMapper searchResultMapper;
+
+    /**
+     * Redirect to other service searching based on parameter(no, company, date)
+     *
+     * @param no String
+     * @param company String
+     * @param strDate String
+     * @return List<SearchResultDto>
+     * @throws ExecutionException
+     * @throws InterruptedException
+     */
+    public List<DivideResultDto> searchByNoAndCompanyAndDate(String no, String company, String strDate) throws ExecutionException, InterruptedException {
+        // company and date is empty
+        if (!StringUtils.hasText(company)
+            && !StringUtils.hasText(strDate)) {
+            return new ArrayList<>();
+        }
+
         if (!StringUtils.hasText(company)) {
-            return this.getByNoAndDate(no, strDate);
+            return searchResultMapper.toDivideResultDtoListFromSearchResultDtoList(this.getByNoAndDate(no, strDate));
         } else if (!StringUtils.hasText(strDate)) {
-            return this.getByNoAndCompany(no, company);
+            return searchResultMapper.toDivideResultDtoListFromSearchResultDtoList(this.getByNoAndCompany(no, company));
         } else {
-            return Arrays.asList(this.getByNoAndCompanyAndDate(no, company, strDate))
-                    .stream()
+            return Stream.of(searchResultMapper.toDivideResultDtoFromSearchResultDto(this.getByNoAndCompanyAndDate(no, company, strDate)))
                     .filter(item -> StringUtils.hasText(item.getWinPrizeName()))
                     .collect(Collectors.toList());
         }
@@ -146,6 +168,16 @@ public class KQXSService {
         return this.getByDocumentReference(docCompany, no, company);
     }
 
+    /**
+     * Get by Document Reference from firestore
+     *
+     * @param docCompany DocumentReference
+     * @param no String
+     * @param company String
+     * @return SearchResultDto
+     * @throws ExecutionException
+     * @throws InterruptedException
+     */
     public SearchResultDto getByDocumentReference(DocumentReference docCompany, String no, String company) throws ExecutionException, InterruptedException {
         SearchResultDto resultDto = new SearchResultDto();
         ApiFuture<DocumentSnapshot> future = docCompany.get();
@@ -175,7 +207,7 @@ public class KQXSService {
         for (int i = 0; i < results.size(); i++) {
             if (StringUtils.hasText(results.get(i))
                 && commonUtils.isWinningPrize(no, results.get(i))) {
-                winPrizeName = String.valueOf(i);
+                winPrizeName = searchResultMapper.winPrizeNameMapper(i);
                 winResult = results.get(i);
             }
         }
