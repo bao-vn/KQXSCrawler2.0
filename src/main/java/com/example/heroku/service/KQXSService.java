@@ -3,7 +3,7 @@ package com.example.heroku.service;
 import com.example.heroku.common.CommonUtils;
 import com.example.heroku.common.Constants;
 import com.example.heroku.dto.CrawlerDto;
-import com.example.heroku.dto.DivideResultDto;
+import com.example.heroku.dto.JsonResultDto;
 import com.example.heroku.dto.History;
 import com.example.heroku.dto.SearchResultDto;
 import com.example.heroku.mapper.SearchResultMapper;
@@ -14,10 +14,6 @@ import com.google.cloud.firestore.DocumentReference;
 import com.google.cloud.firestore.DocumentSnapshot;
 import com.google.cloud.firestore.Firestore;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
@@ -56,7 +52,7 @@ public class KQXSService {
      * @throws ExecutionException
      * @throws InterruptedException
      */
-    public List<DivideResultDto> searchByNoAndCompanyAndDate(String no, String company, String strDate) throws ExecutionException, InterruptedException {
+    public List<JsonResultDto> searchByNoAndCompanyAndDate(String no, String company, String strDate) throws ExecutionException, InterruptedException {
         // company and date is empty
         if (!commonUtils.isValidNumberOfParameter(new String[]{no, company, strDate}, 2)) {
             return new ArrayList<>();
@@ -71,6 +67,17 @@ public class KQXSService {
                     .filter(item -> StringUtils.hasText(item.getWinPrizeName()))
                     .collect(Collectors.toList());
         }
+    }
+
+    /**
+     * Get by companyName and date (as same as getting data from Document reference)
+     *
+     * @param companyName String
+     * @param strDate String
+     * @return CrawlerDto
+     */
+    public CrawlerDto getByCompanyNameAndDate(String companyName, String strDate) {
+
     }
 
     /**

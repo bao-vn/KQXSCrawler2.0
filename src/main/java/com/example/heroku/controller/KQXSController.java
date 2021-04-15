@@ -1,8 +1,7 @@
 package com.example.heroku.controller;
 
 import com.example.heroku.common.CommonUtils;
-import com.example.heroku.dto.DivideResultDto;
-import com.example.heroku.dto.SearchResultDto;
+import com.example.heroku.dto.JsonResultDto;
 import com.example.heroku.repository.FireBaseRepository;
 import com.example.heroku.dto.CrawlerDto;
 import com.example.heroku.service.KQXSService;
@@ -142,12 +141,12 @@ public class KQXSController {
      * @throws InterruptedException
      */
     @GetMapping("/search")
-    public ResponseEntity<List<DivideResultDto>> getByNoAndCompanyNameAndDate(@RequestParam(value = "no", required = false) String no
+    public ResponseEntity<List<JsonResultDto>> getByNoAndCompanyNameAndDate(@RequestParam(value = "no", required = false) String no
             , @RequestParam(value = "companyName", required = false) String strCompanyName
             , @RequestParam(value = "date", required = false) String strDate)
         throws ExecutionException, InterruptedException {
         log.info("Search by no = {} and date = {}", no, strDate);
-        List<DivideResultDto> searchResultDtos = kqxsService.searchByNoAndCompanyAndDate(no, strCompanyName, strDate);
+        List<JsonResultDto> searchResultDtos = kqxsService.searchByNoAndCompanyAndDate(no, strCompanyName, strDate);
 
         return new ResponseEntity<>(searchResultDtos, HttpStatus.OK);
     }

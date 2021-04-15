@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @Builder
-public class DivideResultDto {
+public class JsonResultDto {
     private String companyName;
 
     /** All results of prizes */
