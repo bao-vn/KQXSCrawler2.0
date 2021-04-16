@@ -2,6 +2,8 @@ package com.example.heroku.service;
 
 import com.example.heroku.common.CommonUtils;
 import com.example.heroku.dto.CrawlerDto;
+import com.example.heroku.dto.JsonCrawlerDto;
+import com.example.heroku.mapper.CrawlerMapper;
 import com.example.heroku.model.Company;
 import com.example.heroku.repository.FireBaseRepository;
 import com.rometools.rome.feed.synd.SyndEntry;
@@ -45,6 +47,9 @@ public class CrawlerService {
     @Autowired
     private CompanyService companyService;
 
+    @Autowired
+    private CrawlerMapper crawlerMapper;
+
     private final String URL = "https://xskt.com.vn/rss/";
 
     /**
@@ -87,14 +92,14 @@ public class CrawlerService {
      * @param url String link rss
      * @return CrawlerDto
      */
-    public CrawlerDto getTheFirstKQXSFromRssLink(String url) throws IOException, FeedException, ParseException {
+    public JsonCrawlerDto getTheFirstKQXSFromRssLink(String url) throws IOException, FeedException, ParseException {
         log.info("getTheFirstKQXSFromRssLink: url = {}", url);
 
         URL feedUrl = new URL(url);
         SyndFeedInput input = new SyndFeedInput();
         SyndFeed feed = input.build(new XmlReader((feedUrl)));
 
-        return this.parseDataFromSyndEntry(feed.getEntries().get(0));
+        return  crawlerMapper.toJsonCrawlerDto(this.parseDataFromSyndEntry(feed.getEntries().get(0)));
     }
 
     /**

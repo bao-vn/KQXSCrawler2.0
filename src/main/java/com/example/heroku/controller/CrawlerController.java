@@ -1,5 +1,7 @@
 package com.example.heroku.controller;
 
+import com.example.heroku.dto.CrawlerDto;
+import com.example.heroku.dto.JsonCrawlerDto;
 import com.example.heroku.model.Company;
 import com.example.heroku.service.CrawlerService;
 import com.rometools.rome.io.FeedException;
@@ -50,5 +52,13 @@ public class CrawlerController {
         List<Company> rssLinks = crawlerService.crawlRssLinks();
 
         return new ResponseEntity<>(rssLinks, HttpStatus.OK);
+    }
+
+    @GetMapping("/crawl/company")
+    public ResponseEntity<JsonCrawlerDto> getTheFirstKQXSFromRssLink() throws ParseException, IOException, FeedException {
+        String url = "https://xskt.com.vn/rss-feed/an-giang-xsag.rss";
+        JsonCrawlerDto jsonCrawlerDto = crawlerService.getTheFirstKQXSFromRssLink(url);
+
+        return new ResponseEntity<>(jsonCrawlerDto, HttpStatus.OK);
     }
 }
