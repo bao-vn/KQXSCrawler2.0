@@ -23,6 +23,16 @@ public class CrawlerController {
     @Autowired
     private CrawlerService crawlerService;
 
+    /**
+     * Crawl data from rss link and save as Collection
+     *
+     * @return String
+     * @throws IOException
+     * @throws FeedException
+     * @throws ParseException
+     * @throws ExecutionException
+     * @throws InterruptedException
+     */
     @GetMapping("/save")
     public ResponseEntity<String> crawlDataFromRssLink() throws IOException, FeedException, ParseException, ExecutionException, InterruptedException {
         crawlerService.crawlDataFromRssLink();
@@ -30,7 +40,7 @@ public class CrawlerController {
     }
 
     /**
-     * Crawl data from https://xskt.com.vn/
+     * Crawl data from rss link
      *
      * @return List<Company>
      * @throws IOException

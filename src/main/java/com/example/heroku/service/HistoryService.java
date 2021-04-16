@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,6 +24,7 @@ import org.springframework.stereotype.Service;
  * Save results by date
  */
 @Service
+@Slf4j
 public class HistoryService {
     @Autowired
     private FireBaseRepository fireBaseRepository;
@@ -39,6 +41,8 @@ public class HistoryService {
      * @throws InterruptedException
      */
     public List<String> getDocumentPaths(String collectionPath) throws ExecutionException, InterruptedException {
+        log.info("getDocumentPaths: collectionPath = {}", collectionPath);
+
         Firestore firestore = fireBaseRepository.getFireStore();
         List<String> documentPaths = new ArrayList<>();
         CollectionReference collectionReference = firestore.collection(collectionPath);
@@ -60,6 +64,8 @@ public class HistoryService {
      * Store all result collections by date when initiate database
      */
     public void syncHistoryByCollectionID(String collectionPath) throws ExecutionException, InterruptedException {
+        log.info("syncHistoryByCollectionID: collectionPath = {}", collectionPath);
+
         List<String> docPathsByCollectionID = this.getDocumentPaths(collectionPath);
         for (String doc : docPathsByCollectionID) {
             this.saveHistoryDayByDay(doc, collectionPath);
@@ -67,6 +73,8 @@ public class HistoryService {
     }
 
     public void syncHistoryAllDB() throws ExecutionException, InterruptedException {
+        log.info("syncHistoryAllDB()");
+
         // Get all companies
         List<String> companiesName = companyService.getCompanyPaths();
 
@@ -79,6 +87,8 @@ public class HistoryService {
      * Store all result collections day by day
      */
     public void saveHistoryDayByDay(String strDate, String results) throws ExecutionException, InterruptedException {
+        log.info("saveHistoryDayByDay: strDate = {}, results = {}", strDate, results);
+
         Firestore firestore = fireBaseRepository.getFireStore();
         CollectionReference tblHistory = firestore.collection("tblHistory");
         DocumentReference document = tblHistory.document(strDate);

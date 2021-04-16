@@ -43,6 +43,8 @@ public class CompanyService {
      * @return List<String>: AnGiang, BinhDinh, BinhDuong...
      */
     public List<String> getCompanyPaths() {
+        log.info("getCompanyPaths");
+
         Firestore firestore = fireBaseRepository.getFireStore();
 
         CollectionReference kqxs = firestore.collection(KQXS_COLLECTION);
@@ -64,6 +66,8 @@ public class CompanyService {
      * @throws InterruptedException firebase exception
      */
     public List<Company> getCompanies() throws ExecutionException, InterruptedException {
+        log.info("getCompanies()");
+
         // Get list of companies in Collection "tblCompanies"
         List<String> companyPaths = this.getCompanyPaths();
         List<Company> companies = new ArrayList<>();
@@ -107,6 +111,8 @@ public class CompanyService {
      * @throws InterruptedException
      */
     public void saveCompany(String docPath, Company company) throws ExecutionException, InterruptedException {
+        log.info("saveCompany: docPath = {}, company = {}", docPath, company);
+
         Firestore firestore = fireBaseRepository.getFireStore();
         CollectionReference colCompanies = firestore.collection("tblCompanies");
         DocumentReference documentReference = colCompanies.document(docPath);
@@ -125,6 +131,8 @@ public class CompanyService {
      * @throws InterruptedException
      */
     public void saveCompanies() throws IOException, ExecutionException, InterruptedException {
+        log.info("saveCompanies()");
+
         List<Company> companies = crawlerService.crawlRssLinks();
 
         for (Company company : companies) {

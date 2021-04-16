@@ -60,6 +60,8 @@ public class KQXSService {
      * @throws InterruptedException
      */
     public List<JsonResultDto> searchByNoAndCompanyAndDate(String no, String company, String strDate) throws ExecutionException, InterruptedException {
+        log.info("searchByNoAndCompanyAndDate: no = {}, company = {}, date = {}", no, company, strDate);
+
         // company and date is empty
         if (!commonUtils.isValidNumberOfParameter(new String[]{no, company, strDate}, 2)) {
             return new ArrayList<>();
@@ -84,6 +86,8 @@ public class KQXSService {
      * @return CrawlerDto
      */
     public JsonCrawlerDto getByCompanyNameAndDate(String companyName, String strDate) throws ExecutionException, InterruptedException {
+        log.info("getByCompanyNameAndDate: comapnyName = {}, date = {}", companyName, strDate);
+
         Firestore firestore = fireBaseRepository.getFireStore();
         DocumentReference documentReference = firestore.document(companyName + "/" + strDate);
 
@@ -202,6 +206,8 @@ public class KQXSService {
      * @throws InterruptedException
      */
     public SearchResultDto getByDocumentReference(DocumentReference docCompany, String no, String company) throws ExecutionException, InterruptedException {
+        log.info("getByDocumentReference: docCompany = {}, no = {}, company = {}", docCompany, no, company);
+
         SearchResultDto resultDto = new SearchResultDto();
         ApiFuture<DocumentSnapshot> future = docCompany.get();
         DocumentSnapshot result = future.get();
@@ -224,6 +230,7 @@ public class KQXSService {
      */
     public SearchResultDto winPrize(List<String> results, String no) {
         log.info("winPrize: results = {}, no = {}", results, no);
+
         String winPrizeName = "";
         String winResult = "";
 
