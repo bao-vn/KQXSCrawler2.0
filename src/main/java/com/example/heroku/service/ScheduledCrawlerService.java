@@ -16,5 +16,15 @@ public class ScheduledCrawlerService {
 //    @Scheduled(fixedRate = 1000)
     public void scheduledCrawl() {
         log.info("The time is now {}", dateFormat.format(new Date()));
+
+        // Get data from tblSchedule
+
+        // Compare with current Day
+        
+        // Crawl data from rss link
+
+        // save to Collection by companyName
+
+        // save to tblHistory
     }
 }
