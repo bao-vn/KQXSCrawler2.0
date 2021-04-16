@@ -11,12 +11,14 @@ import com.rometools.rome.io.SyndFeedInput;
 import com.rometools.rome.io.XmlReader;
 
 import java.net.InetSocketAddress;
+import java.net.MalformedURLException;
 import java.net.Proxy;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
 import java.util.concurrent.ExecutionException;
+import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -32,6 +34,7 @@ import java.net.URL;
  * Crawl from rss link
  */
 @Service
+@Slf4j
 public class CrawlerService {
     @Autowired
     private FireBaseRepository fireBaseRepository;
@@ -45,6 +48,56 @@ public class CrawlerService {
     private final String URL = "https://xskt.com.vn/rss/";
 
     /**
+     * Parse data from SyndEntry of rss link
+     *
+     * @param entry SyndEntry
+     * @return CrawlerDto
+     * @throws ParseException
+     */
+    public CrawlerDto parseDataFromSyndEntry(SyndEntry entry) throws ParseException {
+        log.info("parseDataFromSyndEntry: entry = {}", entry);
+
+        String resultsData = entry.getDescription().getValue();
+        List<String> results;
+        if (resultsData.contains("\\[")) {
+            // TODO: Get list of results from KQXS Mien Nam
+            log.info("TODO: Get list of results from KQXS Mien Nam");
+            results = commonUtils.multipleString2KQXSDescription(resultsData).get(0);
+        } else {
+            results = commonUtils.string2KQXSDescription(resultsData);
+        }
+
+        // parse date from link
+        // Example: https://xskt.com.vn/xsag/ngay-18-3-2021
+        Date date = commonUtils.parseToLocalDateFromLink(entry.getLink());
+        String strDate = commonUtils.parseToStringDateFromLink(entry.getLink());
+
+        return CrawlerDto.builder()
+            .title(entry.getTitle())
+            .results(results)
+            .link(entry.getLink())
+            .publishedDate(date)
+            .strPublishedDate(strDate)
+            .build();
+    }
+
+    /**
+     * Get the first KQXS from rss link
+     *
+     * @param url String link rss
+     * @return CrawlerDto
+     */
+    public CrawlerDto getTheFirstKQXSFromRssLink(String url) throws IOException, FeedException, ParseException {
+        log.info("getTheFirstKQXSFromRssLink: url = {}", url);
+
+        URL feedUrl = new URL(url);
+        SyndFeedInput input = new SyndFeedInput();
+        SyndFeed feed = input.build(new XmlReader((feedUrl)));
+
+        return this.parseDataFromSyndEntry(feed.getEntries().get(0));
+    }
+
+    /**
      * Get KQXS from rss link
      *
      * @param url path get from DB
@@ -54,36 +107,17 @@ public class CrawlerService {
      * @throws ParseException
      */
     public List<CrawlerDto> getKQXSFromRssLink(String url) throws IOException, FeedException, ParseException {
+        log.info("getKQXSFromRssLink: url = {}", url);
+
         URL feedUrl = new URL(url);
         SyndFeedInput input = new SyndFeedInput();
         SyndFeed feed = input.build(new XmlReader((feedUrl)));
 
         // parse to json
         List<CrawlerDto> crawlerDtos = new ArrayList<>();
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
 
         for (SyndEntry entry : feed.getEntries()) {
-            String resultsData = entry.getDescription().getValue();
-            List<String> results;
-            if (resultsData.contains("\\[")) {
-                results = commonUtils.multipleString2KQXSDescription(resultsData).get(0);
-            } else {
-                results = commonUtils.string2KQXSDescription(resultsData);
-            }
-
-            // parse date from link
-            // Example: https://xskt.com.vn/xsag/ngay-18-3-2021
-            Date date = commonUtils.parseToLocalDateFromLink(entry.getLink());
-            String strDate = commonUtils.parseToStringDateFromLink(entry.getLink());
-
-            CrawlerDto crawlerDto = CrawlerDto.builder()
-                    .title(entry.getTitle())
-                    .results(results)
-                    .link(entry.getLink())
-                    .publishedDate(date)
-                    .strPublishedDate(strDate)
-                    .build();
-
+            CrawlerDto crawlerDto = this.parseDataFromSyndEntry(entry);
             crawlerDtos.add(crawlerDto);
         }
 
@@ -101,6 +135,8 @@ public class CrawlerService {
      * @throws InterruptedException
      */
     public void save(Company company) throws IOException, FeedException, ParseException, ExecutionException, InterruptedException {
+        log.info("save: company = {}", company);
+
         // format pathDocument = "tblBinhDinh/<yyyy-MM-dd>"
         List<CrawlerDto> crawlerDtos = this.getKQXSFromRssLink(company.getLink());
 
@@ -122,6 +158,8 @@ public class CrawlerService {
      * @throws FeedException
      */
     public void crawlDataFromRssLink() throws ExecutionException, InterruptedException, ParseException, IOException, FeedException {
+        log.info("crawlDataFromRssLink");
+
         List<Company> companies = companyService.getCompanies();
 
         for (Company company : companies) {
@@ -136,6 +174,8 @@ public class CrawlerService {
      * @throws IOException connect to html by Jsoup
      */
     public List<Company> crawlRssLinks() throws IOException {
+        log.info("crawlRssLinks()");
+
         Proxy proxy = new Proxy(Proxy.Type.HTTP,
             new InetSocketAddress("127.0.0.1", 1080));
         Connection connection = Jsoup.connect(URL)
