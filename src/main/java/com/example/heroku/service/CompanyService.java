@@ -103,6 +103,30 @@ public class CompanyService {
     }
 
     /**
+     * Get Company by companyName in Collection tblCompanies
+     *
+     * @param companyName String
+     * @return Company
+     * @throws ExecutionException
+     * @throws InterruptedException
+     */
+    public Company getCompanyByName(String companyName) throws ExecutionException, InterruptedException {
+        log.info("getCompanyByName");
+
+        Firestore firestore = fireBaseRepository.getFireStore();
+        DocumentReference documentReference = firestore.document(KQXS_COLLECTION + "/" + companyName);
+
+        ApiFuture<DocumentSnapshot> future = documentReference.get();
+        DocumentSnapshot snapshot = future.get();
+
+        if (snapshot.exists()) {
+            return snapshot.toObject(Company.class);
+        }
+
+        return new Company();
+    }
+
+    /**
      * Save information(companyName, link, updatedTime) of companies in collection tblCompanies
      *
      * @param docPath String
@@ -114,7 +138,7 @@ public class CompanyService {
         log.info("saveCompany: docPath = {}, company = {}", docPath, company);
 
         Firestore firestore = fireBaseRepository.getFireStore();
-        CollectionReference colCompanies = firestore.collection("tblCompanies");
+        CollectionReference colCompanies = firestore.collection(KQXS_COLLECTION);
         DocumentReference documentReference = colCompanies.document(docPath);
         ApiFuture<WriteResult> initial = documentReference.set(company);
         initial.get();

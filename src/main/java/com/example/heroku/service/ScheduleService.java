@@ -13,9 +13,11 @@ public class ScheduleService {
     @Autowired
     FireBaseRepository fireBaseRepository;
 
+    private final static String TBL_SCHEDULE = "tblSchedule";
+
     public ScheduleDto getByDayOfWeek(String dayPath) throws ExecutionException, InterruptedException {
         Firestore firestore = fireBaseRepository.getFireStore();
-        DocumentReference documentReference = firestore.document(dayPath);
+        DocumentReference documentReference = firestore.document(TBL_SCHEDULE + "/" + dayPath);
         ApiFuture<DocumentSnapshot> future = documentReference.get();
         DocumentSnapshot snapshot = future.get();
 

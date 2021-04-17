@@ -92,14 +92,14 @@ public class CrawlerService {
      * @param url String link rss
      * @return CrawlerDto
      */
-    public JsonCrawlerDto getTheFirstKQXSFromRssLink(String url) throws IOException, FeedException, ParseException {
+    public CrawlerDto getTheFirstKQXSFromRssLink(String url) throws IOException, FeedException, ParseException {
         log.info("getTheFirstKQXSFromRssLink: url = {}", url);
 
         URL feedUrl = new URL(url);
         SyndFeedInput input = new SyndFeedInput();
         SyndFeed feed = input.build(new XmlReader((feedUrl)));
 
-        return  crawlerMapper.toJsonCrawlerDto(this.parseDataFromSyndEntry(feed.getEntries().get(0)));
+        return  this.parseDataFromSyndEntry(feed.getEntries().get(0));
     }
 
     /**
@@ -151,6 +151,28 @@ public class CrawlerService {
                 + crawlerDto.getStrPublishedDate();
             fireBaseRepository.saveResults(pathDocument, crawlerDto);
         }
+    }
+
+    /**
+     * Update Company in Collection named by companyName
+     *
+     * @param company Company contain (companyName, link)
+     * @throws IOException
+     * @throws FeedException
+     * @throws ParseException
+     * @throws ExecutionException
+     * @throws InterruptedException
+     */
+    public void update(Company company) throws ParseException, IOException, FeedException, ExecutionException, InterruptedException {
+        log.info("save: company = {}", company);
+
+        // format pathDocument = "tblBinhDinh/<yyyy-MM-dd>"
+        CrawlerDto crawlerDto = this.getTheFirstKQXSFromRssLink(company.getLink());
+
+        String pathDocument = company.getCompanyName()
+                + '/'
+                + crawlerDto.getStrPublishedDate();
+        fireBaseRepository.saveResults(pathDocument, crawlerDto);
     }
 
     /**
