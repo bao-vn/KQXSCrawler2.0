@@ -48,4 +48,8 @@ jobs:
           --allow-unauthenticated \
           --project ${{ secrets.GCP_PROJECT_ID }}
       - name: Actions for Discord
-        uses: Bao-VN#6463/action-discord@0.0.2
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        uses: Bao-VN#6463/action-discord@master
+        with:
+          args: 'The project {{ EVENT_PAYLOAD.repository.full_name }} has been deployed.'
