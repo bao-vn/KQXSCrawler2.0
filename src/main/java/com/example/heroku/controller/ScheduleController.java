@@ -1,6 +1,6 @@
 package com.example.heroku.controller;
 
-import com.example.heroku.service.ScheduleService;
+import com.example.heroku.service.ScheduledCrawlerService;
 import com.rometools.rome.io.FeedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,11 +17,11 @@ import java.util.concurrent.ExecutionException;
 @RequestMapping("/api")
 public class ScheduleController {
     @Autowired
-    private ScheduleService scheduleService;
+    private ScheduledCrawlerService scheduledCrawlerService;
 
     @GetMapping("schedule-crawl")
     public ResponseEntity<String> testScheduledCrawl() throws InterruptedException, ExecutionException, FeedException, ParseException, IOException {
-        scheduleService.testScheduledCrawl();
+        scheduledCrawlerService.scheduledCrawl();
 
         return new ResponseEntity<>("Hehe, scheduledCrawl successfully!!!", HttpStatus.OK);
     }
