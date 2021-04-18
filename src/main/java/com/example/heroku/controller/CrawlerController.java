@@ -1,5 +1,8 @@
 package com.example.heroku.controller;
 
+import com.example.heroku.dto.CrawlerDto;
+import com.example.heroku.dto.JsonCrawlerDto;
+import com.example.heroku.mapper.CrawlerMapper;
 import com.example.heroku.model.Company;
 import com.example.heroku.service.CrawlerService;
 import com.rometools.rome.io.FeedException;
@@ -23,6 +26,19 @@ public class CrawlerController {
     @Autowired
     private CrawlerService crawlerService;
 
+    @Autowired
+    private CrawlerMapper crawlerMapper;
+
+    /**
+     * Crawl data from rss link and save as Collection
+     *
+     * @return String
+     * @throws IOException
+     * @throws FeedException
+     * @throws ParseException
+     * @throws ExecutionException
+     * @throws InterruptedException
+     */
     @GetMapping("/save")
     public ResponseEntity<String> crawlDataFromRssLink() throws IOException, FeedException, ParseException, ExecutionException, InterruptedException {
         crawlerService.crawlDataFromRssLink();
@@ -30,7 +46,7 @@ public class CrawlerController {
     }
 
     /**
-     * Crawl data from https://xskt.com.vn/
+     * Crawl data from rss link
      *
      * @return List<Company>
      * @throws IOException
@@ -40,5 +56,13 @@ public class CrawlerController {
         List<Company> rssLinks = crawlerService.crawlRssLinks();
 
         return new ResponseEntity<>(rssLinks, HttpStatus.OK);
+    }
+
+    @GetMapping("/crawl/company")
+    public ResponseEntity<JsonCrawlerDto> getTheFirstKQXSFromRssLink() throws ParseException, IOException, FeedException {
+        String url = "https://xskt.com.vn/rss-feed/an-giang-xsag.rss";
+        JsonCrawlerDto jsonCrawlerDto = crawlerMapper.toJsonCrawlerDto(crawlerService.getTheFirstKQXSFromRssLink(url));
+
+        return new ResponseEntity<>(jsonCrawlerDto, HttpStatus.OK);
     }
 }

@@ -17,7 +17,6 @@ public class HistoryController {
     @Autowired
     private HistoryService historyService;
 
-
     /**
      * Get list of documentID
      *
@@ -48,6 +47,13 @@ public class HistoryController {
         return new ResponseEntity<>("Hehe, syncHistoryByCollectionID successful", HttpStatus.OK);
     }
 
+    /**
+     * Sync all data into tblHistory
+     *
+     * @return String
+     * @throws ExecutionException
+     * @throws InterruptedException
+     */
     @GetMapping("/doc/sync-all")
     public ResponseEntity<String> syncHistoryAllDB() throws ExecutionException, InterruptedException {
         historyService.syncHistoryAllDB();

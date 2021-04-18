@@ -1,21 +1,16 @@
 package com.example.heroku.service;
 
+import com.example.heroku.dto.History;
 import com.example.heroku.repository.FireBaseRepository;
 import com.google.api.core.ApiFuture;
-import com.google.cloud.firestore.CollectionReference;
-import com.google.cloud.firestore.DocumentReference;
-import com.google.cloud.firestore.DocumentSnapshot;
-import com.google.cloud.firestore.FieldValue;
-import com.google.cloud.firestore.Firestore;
-import com.google.cloud.firestore.QueryDocumentSnapshot;
-import com.google.cloud.firestore.QuerySnapshot;
-import com.google.cloud.firestore.SetOptions;
-import com.google.cloud.firestore.WriteResult;
+import com.google.cloud.firestore.*;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,7 +18,10 @@ import org.springframework.stereotype.Service;
  * Save results by date
  */
 @Service
+@Slf4j
 public class HistoryService {
+    private final static String TBL_HISTORY = "tblHistory";
+
     @Autowired
     private FireBaseRepository fireBaseRepository;
 
@@ -39,6 +37,8 @@ public class HistoryService {
      * @throws InterruptedException
      */
     public List<String> getDocumentPaths(String collectionPath) throws ExecutionException, InterruptedException {
+        log.info("getDocumentPaths: collectionPath = {}", collectionPath);
+
         Firestore firestore = fireBaseRepository.getFireStore();
         List<String> documentPaths = new ArrayList<>();
         CollectionReference collectionReference = firestore.collection(collectionPath);
@@ -60,6 +60,8 @@ public class HistoryService {
      * Store all result collections by date when initiate database
      */
     public void syncHistoryByCollectionID(String collectionPath) throws ExecutionException, InterruptedException {
+        log.info("syncHistoryByCollectionID: collectionPath = {}", collectionPath);
+
         List<String> docPathsByCollectionID = this.getDocumentPaths(collectionPath);
         for (String doc : docPathsByCollectionID) {
             this.saveHistoryDayByDay(doc, collectionPath);
@@ -67,6 +69,8 @@ public class HistoryService {
     }
 
     public void syncHistoryAllDB() throws ExecutionException, InterruptedException {
+        log.info("syncHistoryAllDB()");
+
         // Get all companies
         List<String> companiesName = companyService.getCompanyPaths();
 
@@ -78,9 +82,11 @@ public class HistoryService {
     /**
      * Store all result collections day by day
      */
-    public void saveHistoryDayByDay(String strDate, String results) throws ExecutionException, InterruptedException {
+    public void saveHistoryDayByDay(String strDate, String companyName) throws ExecutionException, InterruptedException {
+        log.info("saveHistoryDayByDay: strDate = {}, companyName = {}", strDate, companyName);
+
         Firestore firestore = fireBaseRepository.getFireStore();
-        CollectionReference tblHistory = firestore.collection("tblHistory");
+        CollectionReference tblHistory = firestore.collection(TBL_HISTORY);
         DocumentReference document = tblHistory.document(strDate);
 
         // set data
@@ -93,7 +99,38 @@ public class HistoryService {
 
         // Atomically add a new region to the "regions" array field.
         ApiFuture<WriteResult> arrayUnion = document.update("companyName",
-            FieldValue.arrayUnion(results));
+            FieldValue.arrayUnion(companyName));
         arrayUnion.get();
+    }
+
+    public void saveMultipleHistoryDayByDay(List<History> histories, String date) throws ExecutionException, InterruptedException {
+        log.info("saveMultipleHistoryDayByDay");
+
+        Firestore firestore = fireBaseRepository.getFireStore();
+        WriteBatch batch = firestore.batch();
+
+        String docPath = TBL_HISTORY + "/" + date;
+        DocumentReference reference = firestore.document(docPath);
+        if (!fireBaseRepository.isExistedDocument(docPath)) {
+            batch.set(reference, new History());
+        }
+        for (History history : histories) {
+            batch.update(reference, "date", history.getDate());
+            batch.update(reference, "updatedTime", FieldValue.serverTimestamp());
+            batch.update(reference, "companyName", FieldValue.arrayUnion(history.getUpdatedCompanyName()));
+
+            // delete unused fields
+            batch.update(reference, "strDate", FieldValue.delete());
+            batch.update(reference, "updatedCompanyName", FieldValue.delete());
+        }
+
+        // asynchronously commit the batch
+        ApiFuture<List<WriteResult>> future = batch.commit();
+        // future.get() blocks on batch commit operation
+        List<WriteResult> writeResultApiFuture = future.get();
+        log.info("Size of batch: {}", writeResultApiFuture.size());
+        for (WriteResult result : writeResultApiFuture) {
+            log.info("Updated time : " + result.getUpdateTime());
+        }
     }
 }

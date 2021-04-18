@@ -4,11 +4,7 @@ import com.example.heroku.common.CommonUtils;
 import com.example.heroku.dto.CrawlerDto;
 import com.google.api.core.ApiFuture;
 import com.google.auth.oauth2.GoogleCredentials;
-import com.google.cloud.firestore.DocumentReference;
-import com.google.cloud.firestore.FieldValue;
-import com.google.cloud.firestore.Firestore;
-import com.google.cloud.firestore.SetOptions;
-import com.google.cloud.firestore.WriteResult;
+import com.google.cloud.firestore.*;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import com.google.firebase.cloud.FirestoreClient;
@@ -18,9 +14,12 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import java.util.concurrent.ExecutionException;
+
+import com.google.firebase.database.ServerValue;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -104,5 +103,50 @@ public class FireBaseRepository {
         Map<String, Object> updatedTime = new HashMap<>();
         updatedTime.put("updatedTime", FieldValue.serverTimestamp());
         documentReference.set(updatedTime, SetOptions.merge());
+    }
+
+    /**
+     * Save multiple of Results using batched writes
+     *
+     * @param crawlerDtoMap Map<String, CrawlerDto> contain(pathDocument, CrawlerDto)
+     * @throws ExecutionException
+     * @throws InterruptedException
+     */
+    public void saveMultipleResults(Map<String, CrawlerDto> crawlerDtoMap) throws ExecutionException, InterruptedException {
+        WriteBatch batch = firestore.batch();
+
+        // set data for each document path
+        crawlerDtoMap.forEach((pathDocument, crawlerDto) -> {
+            DocumentReference reference = firestore.document(pathDocument);
+            batch.set(reference, crawlerDto);
+            batch.update(reference, "updatedTime", FieldValue.serverTimestamp());
+        });
+
+        // asynchronously commit the batch
+        ApiFuture<List<WriteResult>> future = batch.commit();
+        // future.get() blocks on batch commit operation
+        List<WriteResult> writeResultApiFuture = future.get();
+        log.info("Size of batch: {}", writeResultApiFuture.size());
+        for (WriteResult result : writeResultApiFuture) {
+            log.info("Updated time : " + result.getUpdateTime());
+        }
+    }
+
+    /**
+     * Check existed Document Path
+     *
+     * @param documentPath String
+     * @return boolean
+     * @throws ExecutionException
+     * @throws InterruptedException
+     */
+    public boolean isExistedDocument(String documentPath) throws ExecutionException, InterruptedException {
+        Firestore firestore = getFireStore();
+
+        DocumentReference reference = firestore.document(documentPath);
+        ApiFuture<DocumentSnapshot> future = reference.get();
+        DocumentSnapshot snapshot = future.get();
+
+        return snapshot.exists();
     }
 }
