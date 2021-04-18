@@ -163,7 +163,7 @@ public class CrawlerService {
      * @throws ExecutionException
      * @throws InterruptedException
      */
-    public void update(Company company) throws ParseException, IOException, FeedException, ExecutionException, InterruptedException {
+    public void updateCompany(Company company) throws ParseException, IOException, FeedException, ExecutionException, InterruptedException {
         log.info("save: company = {}", company);
 
         // format pathDocument = "tblBinhDinh/<yyyy-MM-dd>"
@@ -173,6 +173,32 @@ public class CrawlerService {
                 + '/'
                 + crawlerDto.getStrPublishedDate();
         fireBaseRepository.saveResults(pathDocument, crawlerDto);
+    }
+
+    /**
+     * Create Map to save to Collection: <companyName>/<date>
+     *
+     * @param companies List<Company>
+     * @param crawlerDtoMap Map<String, CrawlerDto>
+     * @return Map<String, CrawlerDto>
+     * @throws ParseException
+     * @throws IOException
+     * @throws FeedException
+     */
+    public Map<String, CrawlerDto> updateCrawlerDtoMap(List<Company> companies, Map<String, CrawlerDto> crawlerDtoMap)
+            throws ParseException, IOException, FeedException {
+        log.info("updateCrawlerDtoMap: companies = {}", companies);
+
+        for (Company company : companies) {
+            CrawlerDto crawlerDto = this.getTheFirstKQXSFromRssLink(company.getLink());
+            String pathDocument = company.getCompanyName()
+                    + '/'
+                    + crawlerDto.getStrPublishedDate();
+
+            crawlerDtoMap.put(pathDocument, crawlerDto);
+        }
+
+        return crawlerDtoMap;
     }
 
     /**

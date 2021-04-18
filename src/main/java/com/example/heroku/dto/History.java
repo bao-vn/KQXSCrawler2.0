@@ -16,6 +16,8 @@ public class History {
     /** */
     private List<String> companyName;
 
+    private String updatedCompanyName;
+
     /** */
     private String strDate;
 
