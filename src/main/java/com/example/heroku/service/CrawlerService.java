@@ -28,6 +28,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 import java.net.URL;
@@ -190,6 +191,10 @@ public class CrawlerService {
         log.info("updateCrawlerDtoMap: companies = {}", companies);
 
         for (Company company : companies) {
+            if (!StringUtils.hasText(company.getLink())) {
+                continue;
+            }
+
             CrawlerDto crawlerDto = this.getTheFirstKQXSFromRssLink(company.getLink());
             String pathDocument = company.getCompanyName()
                     + '/'
