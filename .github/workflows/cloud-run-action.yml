@@ -50,6 +50,6 @@ jobs:
       - name: Actions for Discord
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
-        uses: Bao-VN#6463/action-discord@master
+        uses: bao-vn/action-discord@master
         with:
           args: 'The project {{ EVENT_PAYLOAD.repository.full_name }} has been deployed.'
