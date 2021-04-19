@@ -5,12 +5,11 @@ import com.rometools.rome.io.FeedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.text.ParseException;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 @RestController
@@ -19,11 +18,11 @@ public class ScheduleController {
     @Autowired
     private ScheduledCrawlerService scheduledCrawlerService;
 
-    @GetMapping("schedule-crawl")
+    @PostMapping("/schedule-crawl")
     public ResponseEntity<String> testScheduledCrawl() throws InterruptedException, ExecutionException, FeedException, ParseException, IOException {
         scheduledCrawlerService.scheduledCrawl();
 
-        return new ResponseEntity<>("Hehe, scheduledCrawl successfully!!!", HttpStatus.OK);
+        return new ResponseEntity<>("Hehe, scheduleCrawl successfully!!!", HttpStatus.OK);
     }
 
     @GetMapping("schedule/delete")
