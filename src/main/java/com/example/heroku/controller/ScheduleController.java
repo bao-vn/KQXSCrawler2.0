@@ -18,14 +18,14 @@ public class ScheduleController {
     @Autowired
     private ScheduledCrawlerService scheduledCrawlerService;
 
-    @PostMapping("/schedule-crawl")
+    @PostMapping("/schedule/crawl")
     public ResponseEntity<String> testScheduledCrawl() throws InterruptedException, ExecutionException, FeedException, ParseException, IOException {
         scheduledCrawlerService.scheduledCrawl();
 
         return new ResponseEntity<>("Hehe, scheduleCrawl successfully!!!", HttpStatus.OK);
     }
 
-    @GetMapping("schedule/delete")
+    @PostMapping("schedule/delete")
     public ResponseEntity<String> testScheduleDelete() throws ExecutionException, InterruptedException {
         scheduledCrawlerService.scheduleDelete();
 
