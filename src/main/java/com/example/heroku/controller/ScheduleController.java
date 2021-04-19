@@ -25,4 +25,11 @@ public class ScheduleController {
 
         return new ResponseEntity<>("Hehe, scheduledCrawl successfully!!!", HttpStatus.OK);
     }
+
+    @GetMapping("schedule/delete")
+    public ResponseEntity<String> testScheduleDelete() throws ExecutionException, InterruptedException {
+        scheduledCrawlerService.scheduleDelete();
+
+        return new ResponseEntity<>("Hehe, scheduleDelete successfully!!!", HttpStatus.OK);
+    }
 }

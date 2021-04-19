@@ -19,4 +19,8 @@ public class Constants {
         , "Giải Tám"
         , "Chưa xác định"
     };
+
+    public final static String SPLASH = "/";
+    public final static String TBL_SCHEDULE = "tblSchedule";
+    public final static String TBL_HISTORY = "tblHistory";
 }
