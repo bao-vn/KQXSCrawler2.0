@@ -1,6 +1,7 @@
 package com.example.heroku.service;
 
 import com.example.heroku.common.CommonUtils;
+import com.example.heroku.common.Constants;
 import com.example.heroku.dto.CrawlerDto;
 import com.example.heroku.dto.JsonCrawlerDto;
 import com.example.heroku.mapper.CrawlerMapper;
@@ -17,6 +18,8 @@ import java.net.MalformedURLException;
 import java.net.Proxy;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import java.util.concurrent.ExecutionException;
@@ -100,7 +103,15 @@ public class CrawlerService {
         SyndFeedInput input = new SyndFeedInput();
         SyndFeed feed = input.build(new XmlReader((feedUrl)));
 
-        return  this.parseDataFromSyndEntry(feed.getEntries().get(0));
+        CrawlerDto crawlerDto = this.parseDataFromSyndEntry(feed.getEntries().get(0));
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(Constants.LONG_DATE_FORMAT);
+        String strNow = LocalDate.now().format(formatter);
+
+        if (!crawlerDto.getStrPublishedDate().equals(strNow)) {
+            crawlerDto = null;
+        }
+
+        return crawlerDto;
     }
 
     /**
@@ -170,10 +181,13 @@ public class CrawlerService {
         // format pathDocument = "tblBinhDinh/<yyyy-MM-dd>"
         CrawlerDto crawlerDto = this.getTheFirstKQXSFromRssLink(company.getLink());
 
-        String pathDocument = company.getCompanyName()
+        if (crawlerDto != null) {
+            String pathDocument = company.getCompanyName()
                 + '/'
                 + crawlerDto.getStrPublishedDate();
-        fireBaseRepository.saveResults(pathDocument, crawlerDto);
+
+            fireBaseRepository.saveResults(pathDocument, crawlerDto);
+        }
     }
 
     /**
@@ -196,11 +210,14 @@ public class CrawlerService {
             }
 
             CrawlerDto crawlerDto = this.getTheFirstKQXSFromRssLink(company.getLink());
-            String pathDocument = company.getCompanyName()
-                    + '/'
-                    + crawlerDto.getStrPublishedDate();
 
-            crawlerDtoMap.put(pathDocument, crawlerDto);
+            if (crawlerDto != null) {
+                String pathDocument = company.getCompanyName()
+                        + '/'
+                        + crawlerDto.getStrPublishedDate();
+
+                crawlerDtoMap.put(pathDocument, crawlerDto);
+            }
         }
 
         return crawlerDtoMap;
