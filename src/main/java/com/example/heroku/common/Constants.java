@@ -23,4 +23,5 @@ public class Constants {
     public final static String SPLASH = "/";
     public final static String TBL_SCHEDULE = "tblSchedule";
     public final static String TBL_HISTORY = "tblHistory";
+    public final static String LONG_DATE_FORMAT = "yyyy-MM-dd";
 }

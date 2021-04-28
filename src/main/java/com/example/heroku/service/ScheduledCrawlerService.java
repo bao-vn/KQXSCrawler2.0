@@ -29,12 +29,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 @Component
 @Slf4j
 public class ScheduledCrawlerService {
 
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
+    private static final String MIEN_BAC = "MienBac";
 
     @Autowired
     private CompanyService companyService;
@@ -95,7 +97,11 @@ public class ScheduledCrawlerService {
         List<Company> companies = new ArrayList<>();
         List<History> histories = new ArrayList<>();
         for (String companyName : scheduleDto.getMienBac()) {
-            companies.add(companyService.getCompanyByName(companyName));
+            Company company = companyService.getCompanyByName(companyName);
+            if (!StringUtils.hasText(company.getLink())) {
+                company = companyService.getCompanyByName(MIEN_BAC);
+            }
+            companies.add(company);
             histories.add(History.builder()
                     .updatedCompanyName(companyName)
                     .date(strCurrentDate)

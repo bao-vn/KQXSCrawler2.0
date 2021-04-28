@@ -17,6 +17,10 @@ public class CrawlerMapper {
      * @return JsonCrawlerDto
      */
     public JsonCrawlerDto toJsonCrawlerDto(CrawlerDto crawlerDto) {
+        if (crawlerDto == null) {
+            return null;
+        }
+
         return JsonCrawlerDto.builder()
             .title(crawlerDto.getTitle())
             .link(crawlerDto.getLink())
